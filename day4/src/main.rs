@@ -14,7 +14,13 @@ impl Cell {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+impl std::cmp::PartialEq for Cell {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value && self.marked == other.marked
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
 struct Board {
     cells: [[Cell; 5]; 5],
 }
@@ -86,6 +92,19 @@ impl std::fmt::Display for Board {
     }
 }
 
+impl std::cmp::PartialEq for Board {
+    fn eq(&self, other: &Self) -> bool {
+        for x in 0..self.cells.len() {
+            for y in 0..self.cells[x].len() {
+                if self.cells[x][y] != other.cells[x][y] {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+}
+
 fn main() {
     let input = Path::new("./input.txt");
     let content = fs::read_to_string(input).expect("Unable to read file");
@@ -95,7 +114,14 @@ fn main() {
         .split(',')
         .map(|v| v.parse::<i32>().unwrap())
         .collect();
-    let mut boards: Vec<Board> = boards.split("\n\n").map(Board::from_str).collect();
+    let boards: Vec<Board> = boards.split("\n\n").map(Board::from_str).collect();
+
+    part_1(numbers.clone(), boards.clone());
+    part_2(&numbers.clone(), &mut boards.clone());
+}
+
+fn part_1(numbers: Vec<i32>, boards: Vec<Board>) {
+    let mut boards = boards;
     for number in numbers {
         for board in boards.iter_mut() {
             board.mark_number(number);
@@ -105,5 +131,21 @@ fn main() {
                 return;
             }
         }
+    }
+}
+
+fn part_2(numbers: &Vec<i32>, boards: &mut Vec<Board>) {
+    for (i, number) in numbers.iter().enumerate() {
+        for board in boards.iter_mut() {
+            board.mark_number(*number);
+        }
+        if boards.len() == 1 && boards[0].has_won() {
+            let board = boards.remove(0);
+            println!("Last board: {:?}", board);
+            println!("{}", board.sum_of_unmarked() * number);
+            return;
+        }
+        boards.iter().for_each(|b| println!("{}", b));
+        boards.retain(|b| !b.has_won())
     }
 }

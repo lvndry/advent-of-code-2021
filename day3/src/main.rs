@@ -53,15 +53,13 @@ fn part1(input: Vec<&str>) {
 
 fn part2(input: Vec<&str>) {
     let mut oxygen_values = input;
-    let mut co2_values = oxygen_values.clone();
     let mut oxygen_comparaison = String::from("");
-    let mut co2_comparaison = String::from("");
 
     let mut i = 0;
     while oxygen_values.len() > 1 {
         let mut oxygen_rate: Vec<u32> = vec![0; oxygen_values[0].len()];
-        for oxygen_values in oxygen_values.to_vec() {
-            for (i, bit) in oxygen_values.chars().enumerate() {
+        for oxygen_value in oxygen_values.to_vec() {
+            for (i, bit) in oxygen_value.chars().enumerate() {
                 if bit == '0' {
                     oxygen_rate[i] += 1;
                 }
@@ -80,32 +78,9 @@ fn part2(input: Vec<&str>) {
         i += 1;
     }
 
-    let mut i = 0;
-    while co2_values.len() > 1 {
-        let mut co2_rate: Vec<u32> = vec![0; co2_values[0].len()];
-        for co2_values in co2_values.to_vec() {
-            for (i, bit) in co2_values.chars().enumerate() {
-                if bit == '0' {
-                    co2_rate[i] += 1;
-                }
-            }
-        }
-        if co2_rate[i] <= ((co2_values.len() / 2) as u32) {
-            co2_comparaison.push('0');
-        } else {
-            co2_comparaison.push('1')
-        }
-
-        co2_values = co2_values
-            .into_iter()
-            .filter(|d| d.starts_with(&co2_comparaison))
-            .collect();
-        i += 1;
-    }
-
-    let (oxygen_rating, co2_rating) = (oxygen_values[0], co2_values[0]);
+    let oxygen_rating = oxygen_values[0];
     let gamma = isize::from_str_radix(oxygen_rating, 2).unwrap();
-    let epsilon = isize::from_str_radix(co2_rating, 2).unwrap();
+    let epsilon = gamma & 0xFFF;
     println!("{}, {}", gamma, epsilon);
     println!("{}", gamma * epsilon);
 }
@@ -128,4 +103,32 @@ let epsilon = rate.iter().fold(String::from(""), |acc, v| {
         format!("{}{}", acc, "0")
     }
 });
+*/
+// part 2
+/*
+// let mut co2_values = oxygen_values.clone();
+// let mut co2_comparaison = String::from("");
+let mut i = 0;
+while co2_values.len() > 1 {
+    let mut co2_rate: Vec<u32> = vec![0; co2_values[0].len()];
+    for co2_values in co2_values.to_vec() {
+        for (i, bit) in co2_values.chars().enumerate() {
+            if bit == '0' {
+                co2_rate[i] += 1;
+            }
+        }
+    }
+    if co2_rate[i] <= ((co2_values.len() / 2) as u32) {
+        co2_comparaison.push('0');
+    } else {
+        co2_comparaison.push('1')
+    }
+
+    co2_values = co2_values
+        .into_iter()
+        .filter(|d| d.starts_with(&co2_comparaison))
+        .collect();
+    i += 1;
+}
+// let epsilon = isize::from_str_radix(co2_rating, 2).unwrap();
 */
