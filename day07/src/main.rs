@@ -4,7 +4,12 @@ use std::path::Path;
 fn main() {
     let input = Path::new("./input.txt");
     let content = fs::read_to_string(input).expect("Unable to read file");
-    let mut values: Vec<i64> = content.split(',').map(|v| v.parse().unwrap()).collect();
+    part_1(&content.clone());
+    part_2(&content.clone());
+}
+
+fn part_1(input: &str) -> i64 {
+    let mut values: Vec<i64> = input.split(',').map(|v| v.parse().unwrap()).collect();
     values.sort_unstable();
     let median = values[values.len() / 2];
     let mut fuel: i64 = 0;
@@ -12,12 +17,11 @@ fn main() {
         fuel += (median - value).abs()
     }
 
-    println!("{}", fuel);
-
-    part_2(content.split(',').map(|v| v.parse().unwrap()).collect());
+    fuel
 }
 
-fn part_2(values: Vec<i64>) {
+fn part_2(input: &str) -> i64 {
+    let values: Vec<i64> = input.split(',').map(|v| v.parse().unwrap()).collect();
     let avg: f64 = values.iter().sum::<i64>() as f64 / values.len() as f64;
     let avg = avg.floor() as i64;
     let v0 = values
@@ -31,5 +35,5 @@ fn part_2(values: Vec<i64>) {
         .map(|v| v * (v + 1) / 2)
         .sum::<i64>();
 
-    println!("{}", v0.min(v1))
+    v0.min(v1)
 }

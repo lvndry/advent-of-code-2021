@@ -12,7 +12,7 @@ struct Line {
 }
 
 impl Line {
-    fn from_str(line: &str) -> Result<Self, ()> {
+    fn from_str(line: &str) -> Self {
         let mut coords = line.split(|c| c == ',' || c == ' ');
         let x1: u16 = coords.next().unwrap().parse().unwrap();
         let y1: u16 = coords.next().unwrap().parse().unwrap();
@@ -21,14 +21,21 @@ impl Line {
         let y2: u16 = coords.next().unwrap().parse().unwrap();
 
         if x1 == x2 || y1 == y2 {
-            Ok(Self {
+            Self {
                 x1: x1.min(x2),
                 y1: y1.min(y2),
                 x2: x1.max(x2),
                 y2: y1.max(y2),
-            })
+            }
+        } else if x1 < x2 {
+            Self { x1, y1, x2, y2 }
         } else {
-            Err(())
+            Self {
+                x1: x2,
+                y1: y2,
+                x2: x1,
+                y2: y1,
+            }
         }
     }
 }
@@ -37,7 +44,7 @@ impl Line {
 enum GridPoint {
     Empty,
     Occupied,
-    OverStepped,
+    Overlap,
 }
 
 struct Grid {
@@ -58,9 +65,17 @@ impl Grid {
             for y in line.y1..=line.y2 {
                 self.insert_point(line.x1, y);
             }
-        } else {
+        } else if line.y1 == line.y2 {
             for x in line.x1..=line.x2 {
                 self.insert_point(x, line.y1);
+            }
+        } else if line.y1 < line.y2 {
+            for k in 0..=(line.x2 - line.x1) {
+                self.insert_point(line.x1 + k, line.y1 + k);
+            }
+        } else {
+            for k in 0..=(line.x2 - line.x1) {
+                self.insert_point(line.x1 + k, line.y1 - k);
             }
         }
     }
@@ -69,7 +84,7 @@ impl Grid {
         match self[(x, y)] {
             GridPoint::Empty => self[(x, y)] = GridPoint::Occupied,
             GridPoint::Occupied => {
-                self[(x, y)] = GridPoint::OverStepped;
+                self[(x, y)] = GridPoint::Overlap;
                 self.count += 1;
             }
             _ => {}
@@ -100,7 +115,7 @@ impl fmt::Debug for Grid {
                 match self[(x as u16, y as u16)] {
                     GridPoint::Empty => s.push('.'),
                     GridPoint::Occupied => s.push('X'),
-                    GridPoint::OverStepped => s.push('#'),
+                    GridPoint::Overlap => s.push('#'),
                 }
             }
             s.push('\n');
@@ -113,14 +128,16 @@ impl fmt::Debug for Grid {
 fn main() {
     let input = Path::new("./input.txt");
     let content = fs::read_to_string(input).expect("Unable to read file");
-    let lines = content.split('\n');
+    let lines = content.split('\n').collect::<Vec<&str>>();
+    println!("{}", part_1(lines));
+}
+
+fn part_1(lines: Vec<&str>) -> u16 {
     let mut grid = Grid::new();
     for line in lines {
-        if let Ok(line) = Line::from_str(line) {
-            grid.insert_line(line);
-        }
+        let line = Line::from_str(line);
+        grid.insert_line(line);
     }
 
-    println!("{:?}", grid);
-    println!("{}", grid.count);
+    grid.count
 }

@@ -52,16 +52,17 @@ impl Board {
     }
 
     fn has_won(&self) -> bool {
-        if (0..self.cells.len()).all(|i| self.cells[i][0].marked) {
-            return true;
-        }
-
         for i in 0..self.cells.len() {
-            if (0..self.cells[i].len()).all(|j| self.cells[i][j].marked) {
+            if (0..self.cells.len()).all(|j| self.cells[i][j].marked) {
                 return true;
             }
         }
 
+        for i in 0..self.cells.len() {
+            if (0..self.cells.len()).all(|j| self.cells[j][i].marked) {
+                return true;
+            }
+        }
         false
     }
 
@@ -117,7 +118,7 @@ fn main() {
     let boards: Vec<Board> = boards.split("\n\n").map(Board::from_str).collect();
 
     part_1(numbers.clone(), boards.clone());
-    part_2(&numbers.clone(), &mut boards.clone());
+    part_2(&numbers.clone(), boards.clone());
 }
 
 fn part_1(numbers: Vec<i32>, boards: Vec<Board>) {
@@ -134,18 +135,19 @@ fn part_1(numbers: Vec<i32>, boards: Vec<Board>) {
     }
 }
 
-fn part_2(numbers: &Vec<i32>, boards: &mut Vec<Board>) {
-    for (i, number) in numbers.iter().enumerate() {
+fn part_2(numbers: &[i32], boards: Vec<Board>) {
+    let mut boards = boards;
+    for (_, number) in numbers.iter().enumerate() {
         for board in boards.iter_mut() {
             board.mark_number(*number);
         }
         if boards.len() == 1 && boards[0].has_won() {
             let board = boards.remove(0);
-            println!("Last board: {:?}", board);
+            println!("{}", number);
+            println!("Last board:\n{}", board);
             println!("{}", board.sum_of_unmarked() * number);
             return;
         }
-        boards.iter().for_each(|b| println!("{}", b));
         boards.retain(|b| !b.has_won())
     }
 }

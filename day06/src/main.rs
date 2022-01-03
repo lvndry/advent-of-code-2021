@@ -16,7 +16,12 @@ impl LanterFish {
 fn main() {
     let input = Path::new("./input.txt");
     let content = fs::read_to_string(input).expect("Unable to read file");
-    let values = content.split(',');
+    println!("{}", part_1(&content.clone()));
+    println!("{}", part2(&content.clone()));
+}
+
+fn part_1(input: &str) -> usize {
+    let values = input.split(',');
     let mut fishes: Vec<LanterFish> = Vec::new().to_owned();
 
     for value in values {
@@ -37,12 +42,10 @@ fn main() {
         fishes = clone.clone();
     }
 
-    println!("{}", fishes.len());
-    let p2 = part2(content.clone());
-    println!("{}", p2)
+    fishes.len()
 }
 
-fn part2(input: std::string::String) -> u64 {
+fn part2(input: &str) -> u64 {
     let m: Vec<i64> = input
         .trim()
         .split(',')
